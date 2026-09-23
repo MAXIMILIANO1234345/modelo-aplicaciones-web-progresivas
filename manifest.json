@@ -1,10 +1,22 @@
-{"short_name":"pwa",
-"name":"ejemplo de pwa",
-"start-url":"/index.html",
-"display":"standalone",
-"theme-color":"#cbc693",
-"background-color":"#ffffff" }
-
-
-
-
+{
+  "short_name": "pwa",
+  "name": "Ejemplo de PWA",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#cbc693",
+  "background_color": "#ffffff",
+  "description": "Una aplicación web progresiva de ejemplo.",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
