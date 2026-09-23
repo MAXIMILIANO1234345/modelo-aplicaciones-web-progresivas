@@ -2,46 +2,132 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Página Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo de PWA</title>
     
-    <!-- Aquí conectamos el archivo CSS -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="/manifest.json">
+    <!-- Manifest incrustado dinámicamente para evitar errores 404 -->
+    <script>
+        const manifestData = {
+            "name": "Ejemplo de PWA",
+            "short_name": "PWA",
+            "start_url": "./index.html",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#cbc693",
+            "icons": [
+                {
+                    "src": "https://via.placeholder.com/192",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "https://via.placeholder.com/512",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(manifestData);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+    </script>
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #cbc693;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .status {
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .online { background-color: #e6f4ea; color: #137333; }
+        .offline { background-color: #fce8e6; color: #c5221f; }
+    </style>
 </head>
 <body>
 
-    <!-- Nuestro encabezado con CSS -->
-    <header class="encabezado">
-        <h1>¡Hola Mundo!</h1>
-    </header>
+    <div class="container" id="main-container">
+        <h1 id="title">¡Hola PWA!</h1>
+        <p id="description">Esta aplicación está funcionando correctamente y lista para instalarse.</p>
+        <div>Estado de la red: <span id="network-status" class="status online">En línea</span></div>
+    </div>
 
-    <!-- Contenido principal -->
-    <!-- Contenido principal -->
-    <main>
-        <p>Esta página ahora tiene estilo y programación.</p>
-        <button onclick="mostrarBienvenida()">Haz clic para un mensaje</button>
-    </main>
-
-    <!-- NUEVO: Nuestro pie de página -->
-    <footer class="pie-pagina">
-        <p>&copy; 2026 Mi Primera Página Web. Creado con HTML, CSS y JS.</p>
-    </footer>
-
-    <!-- Aquí conectamos el archivo JavaScript -->
-    <script src="script.js"></script>
-    
-</body>
     <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((reg) => {
-          console.log('Service Worker registrado con éxito:', reg.scope);
-        })
-        .catch((err) => {
-          console.log('Error al registrar el Service Worker:', err);
-        });
-    });
-  }
-</script>
+        // Cambiar dinámicamente si se pierde la conexión
+        function updateOnlineStatus() {
+            const statusElem = document.getElementById('network-status');
+            const titleElem = document.getElementById('title');
+            const descElem = document.getElementById('description');
+
+            if (navigator.onLine) {
+                statusElem.textContent = "En línea";
+                statusElem.className = "status online";
+                titleElem.textContent = "¡Hola PWA!";
+                descElem.textContent = "Esta aplicación está funcionando correctamente y lista para instalarse.";
+            } else {
+                statusElem.textContent = "Fuera de línea";
+                statusElem.className = "status offline";
+                titleElem.textContent = "Estás fuera de línea";
+                descElem.textContent = "Parece que has perdido tu conexión a internet. La aplicación sigue funcionando en modo offline.";
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // Registro de Service Worker simulado por seguridad para la PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    self.addEventListener('install', (e) => { self.skipWaiting(); });
+                    self.addEventListener('activate', (e) => { self.clients.claim(); });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            fetch(e.request).catch(() => caches.match(e.request))
+                        );
+                    });
+                `;
+                const swBlob = new Blob([swCode], {type: 'text/javascript'});
+                const swUrl = URL.createObjectURL(swBlob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log("PWA Service Worker activo."))
+                    .catch((err) => console.log("Error SW:", err));
+            });
+        }
+    </script>
+</body>
 </html>
